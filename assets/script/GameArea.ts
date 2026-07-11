@@ -78,6 +78,7 @@ export class GameArea extends Component {
     private currentAimDirection: Vec2 = new Vec2(0, 1); // 👈 存儲當前瞄準方向
     private blocksList: Node[] = []; // 存儲場景中所有活躍方塊的節點
     private localAudioSource: AudioSource = null!; // 👈 用於播放音效的 AudioSource 元件
+    private isExiting: boolean = false; // 👈 防止重複點擊返回選單旗標
 
     onLoad() {
         GameArea.instance = this; // 👈 初始化單例
@@ -595,15 +596,21 @@ export class GameArea extends Component {
 
     // 💡 當玩家點選結算面板上的返回主選單按鈕時呼叫 (可在編輯器按鈕組件中點擊事件綁定)
     public onBackToMenuBtnClick() {
+        if (this.isExiting) return;
+        this.isExiting = true;
+
         console.log("👉 點擊返回主選單，正載入 MenuScene...");
         
         // 💡 播放點擊按鈕音效
         this.playSound(this.clickSound, 1.0);
 
-        // 💡 稍微延遲 0.15 秒跳轉，確保點擊音效頭段能播放出來
-        setTimeout(() => {
-            director.loadScene("MenuScene"); // 👈 修正大小寫：由 menuScene 改為 MenuScene
-        }, 150);
+        // 💡 立即載入場景，不再人工延遲
+        director.loadScene("MenuScene", (err) => {
+            if (err) {
+                console.error("載入 MenuScene 失敗:", err);
+                this.isExiting = false; // 失敗時解鎖
+            }
+        });
     }
 
     // 💡 當玩家點選「購買彈珠」按鈕時呼叫 (3金幣買 1 顆球，可在編輯器按鈕事件綁定)
