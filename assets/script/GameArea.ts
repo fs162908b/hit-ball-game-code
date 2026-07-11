@@ -594,20 +594,20 @@ export class GameArea extends Component {
         }
     }
 
-    // 💡 當玩家點選結算面板上的返回主選單按鈕時呼叫 (可在編輯器按鈕組件中點擊事件綁定)
+    // 💡 當玩家點選結算面板上的【重新遊戲】按鈕時呼叫 (為了省去重新綁定事件的麻煩，我們直接保留此函數名但修改為重載 GameScene)
     public onBackToMenuBtnClick() {
         if (this.isExiting) return;
         this.isExiting = true;
 
-        console.log("👉 點擊返回主選單，正載入 MenuScene...");
+        console.log("👉 點擊重新開始，正重新載入 GameScene...");
         
         // 💡 播放點擊按鈕音效
         this.playSound(this.clickSound, 1.0);
 
-        // 💡 立即載入場景，不再人工延遲
-        director.loadScene("MenuScene", (err) => {
+        // 💡 重新載入當前 GameScene，Cocos 會自動乾淨地銷毀所有舊節點並重設所有變數與數據！
+        director.loadScene("GameScene", (err) => {
             if (err) {
-                console.error("載入 MenuScene 失敗:", err);
+                console.error("重新載入 GameScene 失敗:", err);
                 this.isExiting = false; // 失敗時解鎖
             }
         });
