@@ -636,6 +636,33 @@ export class GameArea extends Component {
             this.localAudioSource.playOneShot(clip, volume);
         }
     }
+
+    // 💡 強制一鍵回收所有彈珠並直接跳入下一回合 (終極防卡死重置)
+    public onRecallAllBallsBtnClick() {
+        console.log("⚠️ 玩家手動觸發【強制重置】直接進入下一回合...");
+
+        // 1. 找出當前畫面中所有彈珠節點並直接強行銷毀，防止畫面上殘留浮空的球
+        let childBalls = this.node.children.filter(c => c.name.toLowerCase().startsWith("ball"));
+        childBalls.forEach(ballNode => {
+            if (ballNode && ballNode.isValid) {
+                ballNode.destroy();
+            }
+        });
+
+        // 2. 暴力重置所有的關鍵狀態旗標，徹底解開可能發生的卡死
+        this.isShooting = false;
+        this.isAiming = false;
+        this.isAimCancel = false;
+        this.activeBullets = 0;
+
+        // 3. 清除殘留的瞄準線
+        if (this.aimGraphics) {
+            this.aimGraphics.clear();
+        }
+
+        // 4. 強制跳入下一回合 (方塊下移、生成新方塊、刷新 UI)
+        this.nextRound();
+    }
 }
 
 
